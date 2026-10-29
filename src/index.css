@@ -24,32 +24,47 @@
   background: #94a3b8;
 }
 
+/* Print target hidden on screen */
+#fde-pdf-report-root {
+  display: none;
+}
+
 /* Print styles for A4 PDF export */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 14mm 12mm 14mm 12mm;
+    margin: 12mm 10mm 12mm 10mm;
   }
 
-  body {
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
     background: #ffffff !important;
     color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Hide everything on screen except print report */
-  body > * {
+  /* Hide main React app root during print */
+  #root {
     display: none !important;
   }
 
+  /* Display the print report container cleanly */
   #fde-pdf-report-root {
     display: block !important;
-    position: static !important;
+    visibility: visible !important;
     width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
+    color: #0f172a !important;
   }
 
   #fde-pdf-report-root * {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CaseSession } from '../types';
@@ -770,8 +771,9 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
       </div>
 
       {/* ================= PURE PRINT ROOT (FOR BROWSER PRINT ENGINE ONLY) ================= */}
-      <div id="fde-pdf-report-root" className="hidden">
-        {exportMode === 'clientProposal' ? (
+      {createPortal(
+        <div id="fde-pdf-report-root">
+          {exportMode === 'clientProposal' ? (
           /* Client proposal print layout */
           <div className="p-8 space-y-8 text-slate-900 font-sans">
             {/* Page 1: Cover */}
@@ -956,7 +958,9 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
             <p className="text-xs text-slate-500">包含开场白、追问雷达与内部应对策略</p>
           </div>
         )}
-      </div>
+      </div>,
+      document.body
+    )}
     </>
   );
 };
