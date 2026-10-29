@@ -31,6 +31,7 @@ interface CombatCardVisualViewProps {
 export const CombatCardVisualView: React.FC<CombatCardVisualViewProps> = ({ rawContent }) => {
   const [selectedPainPointIdx, setSelectedPainPointIdx] = useState(0);
   const [copiedOpening, setCopiedOpening] = useState(false);
+  const [isDetailedMode, setIsDetailedMode] = useState(true);
 
   // Parse document dynamically
   const parsed = parseFullDocument(rawContent);
@@ -157,11 +158,34 @@ export const CombatCardVisualView: React.FC<CombatCardVisualViewProps> = ({ rawC
               <StatusBadge status={infoStatus} size="sm" />
             </div>
 
-            <div className="text-xs text-slate-300 flex items-center gap-2">
-              <span>行业：</span>
-              <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-white font-medium border border-white/10">
-                {industry}
-              </span>
+            <div className="flex items-center gap-2">
+              <div className="flex p-0.5 bg-white/10 rounded-lg border border-white/20 text-xs font-medium">
+                <button
+                  onClick={() => setIsDetailedMode(true)}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    isDetailedMode ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="完整展开全部痛点细节与剖析，无任何截断"
+                >
+                  📖 详述模式
+                </button>
+                <button
+                  onClick={() => setIsDetailedMode(false)}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    !isDetailedMode ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="紧凑精简排版"
+                >
+                  ⚡ 精炼概览
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-300 hidden sm:flex items-center gap-2 pl-2">
+                <span>行业：</span>
+                <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-white font-medium border border-white/10">
+                  {industry}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -300,14 +324,14 @@ export const CombatCardVisualView: React.FC<CombatCardVisualViewProps> = ({ rawC
                     <StatusBadge status={pp.evidenceStatus} size="sm" />
                   </div>
 
-                  <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug mb-2">
+                  <h4 className={`text-xs font-bold text-slate-900 ${isDetailedMode ? '' : 'line-clamp-2'} leading-snug mb-2`}>
                     {pp.title}
                   </h4>
 
-                  <div className="text-[11px] text-slate-500 space-y-1">
-                    <div><b>对应业务阶段：</b><span className="text-blue-700">{pp.processStage}</span></div>
+                  <div className="text-[11px] text-slate-600 space-y-1.5 leading-relaxed">
+                    <div><b>对应业务阶段：</b><span className="text-blue-700 font-medium">{pp.processStage}</span></div>
                     <div><b>涉及岗位：</b>{pp.roles}</div>
-                    <div className="line-clamp-2"><b>业务影响：</b>{pp.impact}</div>
+                    <div className={isDetailedMode ? '' : 'line-clamp-2'}><b>业务影响：</b>{pp.impact}</div>
                   </div>
                 </div>
 

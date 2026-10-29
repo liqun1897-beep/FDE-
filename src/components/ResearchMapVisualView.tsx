@@ -28,6 +28,8 @@ interface ResearchMapVisualViewProps {
 export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ rawContent }) => {
   const [selectedRoleTier, setSelectedRoleTier] = useState<string>('all');
   const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
+  const [isDetailedMode, setIsDetailedMode] = useState<boolean>(true); // Default to Detailed mode for full content
+  const [expandedRoleIdx, setExpandedRoleIdx] = useState<number | null>(null);
 
   // Parse document dynamically
   const parsed = parseFullDocument(rawContent);
@@ -281,9 +283,32 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
               <span>客户行业情报与岗位痛点地图 (Agent 1)</span>
             </span>
 
-            <div className="text-xs text-slate-300 flex items-center gap-2">
-              {region && <span>地区：{region}</span>}
-              {subIndustry && <span>· 赛道：{subIndustry}</span>}
+            <div className="flex items-center gap-2">
+              <div className="flex p-0.5 bg-white/10 rounded-lg border border-white/20 text-xs font-medium">
+                <button
+                  onClick={() => setIsDetailedMode(true)}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    isDetailedMode ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="完整展示所有卡点、职责与段落细节，不进行字数截断"
+                >
+                  📖 详述模式 (全文呈现)
+                </button>
+                <button
+                  onClick={() => setIsDetailedMode(false)}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    !isDetailedMode ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="紧凑精简排版，便于快速浏览结构"
+                >
+                  ⚡ 精炼概览
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-300 hidden sm:flex items-center gap-2 pl-2">
+                {region && <span>地区：{region}</span>}
+                {subIndustry && <span>· 赛道：{subIndustry}</span>}
+              </div>
             </div>
           </div>
 
@@ -538,7 +563,7 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
               className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs space-y-3"
             >
               {/* Header */}
-              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     task.tier === '决策层'
@@ -552,16 +577,18 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
                   <h4 className="text-xs font-bold text-slate-900">{task.roleName}</h4>
                 </div>
 
-                <span className="text-[10px] text-slate-400">
-                  {task.coreDuty ? `职责：${task.coreDuty.slice(0, 18)}...` : ''}
-                </span>
+                {task.coreDuty && (
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {isDetailedMode ? `职责：${task.coreDuty}` : `职责：${task.coreDuty.slice(0, 22)}...`}
+                  </span>
+                )}
               </div>
 
               {/* Repetitive Tasks Box */}
               <div className="p-3 rounded-lg bg-rose-50/50 border border-rose-100">
                 <div className="text-[11px] font-bold text-rose-900 flex items-center gap-1.5 mb-1">
                   <Clock className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                  <span>🔥 高耗时重复手工动作：</span>
+                  <span>🔥 高耗时重复手工动作（真实痛点）：</span>
                 </div>
                 <p className="text-xs text-rose-950 leading-relaxed font-mono">
                   {task.repetitiveTasks}
@@ -569,21 +596,21 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
               </div>
 
               {/* Inputs & Outputs */}
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                  <span className="text-slate-400 block mb-0.5 font-semibold">输入数据与工具：</span>
-                  <span className="text-slate-700 line-clamp-2">{task.inputsAndTools || 'ERP系统、微信群、各类Excel'}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <span className="text-slate-400 block mb-0.5 font-semibold">输入数据与使用工具：</span>
+                  <span className={`text-slate-700 ${isDetailedMode ? 'leading-relaxed' : 'line-clamp-2'}`}>{task.inputsAndTools || 'ERP系统、微信群、各类Excel'}</span>
                 </div>
-                <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                  <span className="text-slate-400 block mb-0.5 font-semibold">交付产出：</span>
-                  <span className="text-slate-700 line-clamp-2">{task.outputs || '日报报表、派工单、核对明细'}</span>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <span className="text-slate-400 block mb-0.5 font-semibold">交付产出物：</span>
+                  <span className={`text-slate-700 ${isDetailedMode ? 'leading-relaxed' : 'line-clamp-2'}`}>{task.outputs || '日报报表、派工单、核对明细'}</span>
                 </div>
               </div>
 
               {/* Bottleneck Callout */}
               <div className="p-2.5 rounded-lg bg-amber-50/60 border border-amber-200 text-[11px] text-amber-950 flex items-start gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
+                <div className="leading-relaxed">
                   <span className="font-bold">易错返工/等待卡点：</span>
                   <span>{task.bottlenecks}</span>
                 </div>
@@ -591,7 +618,7 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
 
               {/* Verification question */}
               {task.verifyQuestion && (
-                <div className="text-[11px] text-blue-900 bg-blue-50/50 p-2 rounded-lg border border-blue-100">
+                <div className="text-[11px] text-blue-900 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100 leading-relaxed">
                   <span className="font-bold text-blue-700">求证提问建议：</span>
                   <span className="italic">{task.verifyQuestion}</span>
                 </div>
@@ -599,6 +626,33 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
             </div>
           ))}
         </div>
+
+        {/* In-depth Role Tier Analyses Extracted from Report */}
+        {Object.entries(parsed.roleTierAnalyses).length > 0 && (
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <span>各层级现场深度剖析（岗位工作实录与系统操作痛点）</span>
+              </span>
+              <span className="text-[11px] text-slate-400 font-normal">来自研报深入调研记录</span>
+            </div>
+
+            <div className="space-y-3">
+              {Object.entries(parsed.roleTierAnalyses).map(([sectionTitle, textContent], i) => (
+                <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h5 className="font-bold text-xs text-blue-900 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span>{sectionTitle}</span>
+                  </h5>
+                  <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
+                    {textContent}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 5. Candidate Pain Points with 4-Tier Confidence */}
@@ -660,6 +714,33 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
             </div>
           ))}
         </div>
+
+        {/* In-depth Role Tier Analyses Extracted from Report */}
+        {Object.entries(parsed.roleTierAnalyses).length > 0 && (
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <span>各层级现场深度剖析（岗位工作实录与系统操作痛点）</span>
+              </span>
+              <span className="text-[11px] text-slate-400 font-normal">来自研报深入调研记录</span>
+            </div>
+
+            <div className="space-y-3">
+              {Object.entries(parsed.roleTierAnalyses).map(([sectionTitle, textContent], i) => (
+                <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h5 className="font-bold text-xs text-blue-900 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span>{sectionTitle}</span>
+                  </h5>
+                  <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
+                    {textContent}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
     </div>

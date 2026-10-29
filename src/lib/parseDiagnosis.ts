@@ -40,6 +40,7 @@ export interface ParsedDiagnosisReport {
   allTables: { title?: string; headers: string[]; rows: string[][] }[];
   processStages: ProcessStage[];
   roleTasks: RoleTaskItem[];
+  roleTierAnalyses: Record<string, string>;
 }
 
 /**
@@ -99,7 +100,8 @@ export function parseFullDocument(raw: string): ParsedDiagnosisReport {
     sections: {},
     allTables: [],
     processStages: [],
-    roleTasks: []
+    roleTasks: [],
+    roleTierAnalyses: {}
   };
 
   if (!raw) return result;
@@ -164,48 +166,83 @@ export function parseFullDocument(raw: string): ParsedDiagnosisReport {
     };
   }
 
-  // Extract Process Stages from tables or text
+  // Extract Process Stages from tables or text with smart header matching
   result.allTables = extractMarkdownTables(raw);
   
-  // Look for process flow table (columns like 流程阶段 / 业务环节 / 动作 / 涉及岗位 / 卡点)
   for (const table of result.allTables) {
     const headerStr = table.headers.join(' ');
-    if (headerStr.includes('阶段') || headerStr.includes('流程') || headerStr.includes('环节')) {
+    // Detect Process Table
+    if ((headerStr.includes('阶段') || headerStr.includes('流程') || headerStr.includes('环节')) && 
+        (headerStr.includes('动作') || headerStr.includes('输入') || headerStr.includes('交付') || headerStr.includes('断点') || headerStr.includes('卡点'))) {
+      
+      const stepCol = table.headers.findIndex(h => /序号|步骤|编号/.test(h));
+      const nameCol = table.headers.findIndex(h => /(?:流程阶段|业务阶段|阶段名称|业务环节|环节)/.test(h) && !/序号/.test(h));
+      const roleCol = table.headers.findIndex(h => /(?:责任岗位|协作方|岗位|角色|部门)/.test(h));
+      const actCol  = table.headers.findIndex(h => /(?:核心业务动作|核心动作|动作|工作内容)/.test(h));
+      const inCol   = table.headers.findIndex(h => /(?:输入资料|输入系统|工具栈|输入|系统)/.test(h));
+      const outCol  = table.headers.findIndex(h => /(?:输出交付|输出|成果|交付物)/.test(h));
+      const botCol  = table.headers.findIndex(h => /(?:断点|卡点|协同卡点|瓶颈|潜在)/.test(h));
+
       table.rows.forEach((row, idx) => {
+        const stepNum = stepCol >= 0 && parseInt(row[stepCol], 10) ? parseInt(row[stepCol], 10) : idx + 1;
+        const nameVal = (nameCol >= 0 ? row[nameCol] : '') || row[1] || row[0] || `业务环节 ${idx + 1}`;
+        const roleVal = (roleCol >= 0 ? row[roleCol] : '') || row[2] || '';
+        const actVal  = (actCol >= 0 ? row[actCol] : '') || row[3] || '';
+        const inVal   = (inCol >= 0 ? row[inCol] : '') || row[4] || '';
+        const outVal  = (outCol >= 0 ? row[outCol] : '') || row[5] || '';
+        const botVal  = (botCol >= 0 ? row[botCol] : '') || row[row.length - 1] || '';
+
         result.processStages.push({
-          step: idx + 1,
-          name: row[0] || row[1] || `环节 ${idx + 1}`,
-          roles: row[1] || row[2] || '',
-          actions: row[2] || row[3] || '',
-          inputs: row[3] || '',
-          outputs: row[4] || '',
-          bottlenecks: row[row.length - 1] || ''
+          step: stepNum,
+          name: nameVal,
+          roles: roleVal,
+          actions: actVal,
+          inputs: inVal,
+          outputs: outVal,
+          bottlenecks: botVal
+        });
+      });
+    }
+
+    // Detect Role Tasks Table
+    if (headerStr.includes('岗位') && (headerStr.includes('高频') || headerStr.includes('任务') || headerStr.includes('职责') || headerStr.includes('手工'))) {
+      const tierCol = table.headers.findIndex(h => /(?:层级|梯队)/.test(h));
+      const roleCol = table.headers.findIndex(h => /(?:岗位名称|具体岗位|角色|岗位)/.test(h) && !/层级/.test(h));
+      const dutyCol = table.headers.findIndex(h => /(?:核心职责|日常职责|主要职责|职责)/.test(h));
+      const taskCol = table.headers.findIndex(h => /(?:高频重复|手工任务|最耗时|高频|重复)/.test(h));
+      const inCol   = table.headers.findIndex(h => /(?:输入数据|系统|工具)/.test(h));
+      const outCol  = table.headers.findIndex(h => /(?:输出交付|交付物|产出)/.test(h));
+      const botCol  = table.headers.findIndex(h => /(?:典型卡点|卡点|等待|返工|瓶颈)/.test(h));
+      const qCol    = table.headers.findIndex(h => /(?:建议验证|求证|提问|建议)/.test(h));
+
+      table.rows.forEach((row, idx) => {
+        const tierRaw = (tierCol >= 0 ? row[tierCol] : '') || row[0] || '';
+        let tier: RoleTaskItem['tier'] = '一线执行层';
+        if (tierRaw.includes('决策') || tierRaw.includes('高层') || tierRaw.includes('经营')) tier = '决策层';
+        else if (tierRaw.includes('管理') || tierRaw.includes('协同') || tierRaw.includes('主管') || tierRaw.includes('总监')) tier = '协同管理层';
+
+        result.roleTasks.push({
+          tier,
+          roleName: (roleCol >= 0 ? row[roleCol] : '') || row[1] || row[0] || `核心岗位 ${idx + 1}`,
+          coreDuty: (dutyCol >= 0 ? row[dutyCol] : '') || row[2] || '',
+          repetitiveTasks: (taskCol >= 0 ? row[taskCol] : '') || row[3] || '日常处理各类报表与资料核对',
+          inputsAndTools: (inCol >= 0 ? row[inCol] : '') || row[4] || '',
+          outputs: (outCol >= 0 ? row[outCol] : '') || row[5] || '',
+          bottlenecks: (botCol >= 0 ? row[botCol] : '') || row[6] || row[row.length - 1] || '人工流转繁琐，跨系统同步时滞',
+          verifyQuestion: (qCol >= 0 ? row[qCol] : '') || row[7] || ''
         });
       });
     }
   }
 
-  // Look for role tasks table (columns like 岗位层级 / 具体岗位 / 高频重复 / 卡点)
-  for (const table of result.allTables) {
-    const headerStr = table.headers.join(' ');
-    if (headerStr.includes('岗位') && (headerStr.includes('高频') || headerStr.includes('任务') || headerStr.includes('职责'))) {
-      table.rows.forEach(row => {
-        const tierRaw = row[0] || '';
-        let tier: RoleTaskItem['tier'] = '一线执行层';
-        if (tierRaw.includes('决策') || tierRaw.includes('高层') || tierRaw.includes('老板')) tier = '决策层';
-        else if (tierRaw.includes('管理') || tierRaw.includes('协同') || tierRaw.includes('主管') || tierRaw.includes('总监')) tier = '协同管理层';
-
-        result.roleTasks.push({
-          tier,
-          roleName: row[1] || row[0] || '业务岗位',
-          coreDuty: row[2] || '',
-          repetitiveTasks: row[3] || row[2] || '日常处理各类报表与资料核对',
-          inputsAndTools: row[4] || '',
-          outputs: row[5] || '',
-          bottlenecks: row[6] || row[row.length - 1] || '人工流转繁琐，跨系统同步时滞',
-          verifyQuestion: row[7] || ''
-        });
-      });
+  // Extract detailed in-depth section paragraphs for roles (e.g. 6.2, 6.3, 6.4)
+  const roleAnalysisRegex = /###\s*(?:6\.[2-4]\s*)?([^#\n]+(?:决策层|协同|管理|执行层|总监|经理|一线)[^#\n]*)\n([\s\S]*?)(?=(?:###|##|$))/g;
+  let match;
+  while ((match = roleAnalysisRegex.exec(raw)) !== null) {
+    const title = match[1].trim();
+    const content = match[2].trim();
+    if (content.length > 30) {
+      result.roleTierAnalyses[title] = content;
     }
   }
 
