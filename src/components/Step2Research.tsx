@@ -3,6 +3,7 @@ import { CaseSession } from '../types';
 import { MarkdownViewer } from './MarkdownViewer';
 import { ResearchMapVisualView } from './ResearchMapVisualView';
 import { 
+  AlertCircle,
   Sparkles, 
   BrainCircuit, 
   ChevronDown, 
@@ -153,7 +154,8 @@ export const Step2Research: React.FC<Step2ResearchProps> = ({
           <button
             onClick={onProceedToAgent2}
             disabled={isStreaming || !displayContent}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-all disabled:opacity-50"
+            title={!displayContent ? '需先完成 Agent 1 行业情报研究，方可制作作战卡' : '进入第 3 步制作作战卡'}
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>制作 Agent 2 诊断作战卡</span>
             <ArrowRight className="w-4 h-4" />
@@ -193,6 +195,26 @@ export const Step2Research: React.FC<Step2ResearchProps> = ({
               <RefreshCw className="w-8 h-8 animate-spin text-blue-500 mb-3" />
               <p className="text-sm font-medium text-slate-600">Agent 1 正在深度研究行业生态与岗位痛点...</p>
               <p className="text-xs text-slate-400 mt-1">分析产业链、企业画像、经营压力与三层岗位业务流</p>
+            </div>
+          ) : !displayContent ? (
+            <div className="bg-white rounded-2xl border border-dashed border-amber-300 bg-amber-50/30 shadow-xs p-12 flex flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-3 text-amber-600">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">
+                暂未获取到 Agent 1 行业研究成果
+              </h3>
+              <p className="text-xs text-slate-600 max-w-md leading-relaxed mb-6">
+                此前生成可能因网络波动、模型密钥配置或请求被中断。由于 Agent 2（作战卡制作）依赖此研究地图提供的事实与假设底稿，必须先完成本环节生成。
+              </p>
+              <button
+                onClick={onRegenerate}
+                disabled={isStreaming}
+                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all active:scale-95"
+              >
+                <RefreshCw className={`w-4 h-4 ${isStreaming ? 'animate-spin' : ''}`} />
+                <span>立即启动 / 重新生成 Agent 1 研究</span>
+              </button>
             </div>
           ) : viewMode === 'visual' ? (
             <ResearchMapVisualView rawContent={displayContent} />

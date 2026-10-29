@@ -163,7 +163,8 @@ app.post('/api/config/test', async (req, res) => {
   const { baseUrl, apiKey, model } = req.body;
   const current = getConfig();
   const targetUrl = (baseUrl || current.baseUrl).replace(/\/+$/, '') + '/chat/completions';
-  const targetKey = apiKey && !apiKey.includes('...') ? apiKey : current.apiKey;
+  let targetKey = apiKey && !apiKey.includes('...') ? apiKey : current.apiKey;
+  if (targetKey) targetKey = targetKey.trim().split(/\s+/)[0];
   const targetModel = model || current.model;
 
   const controller = new AbortController();

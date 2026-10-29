@@ -50,6 +50,7 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep, onSelectStep, isS
                 <li key={step.id} className="relative flex-1">
                   <div
                     onClick={() => available && onSelectStep(step.id as any)}
+                    title={!available ? `请先完成前置步骤以解锁第 ${step.id} 步` : `切换至第 ${step.id} 步`}
                     className={`group flex items-center p-2 rounded-lg transition-all ${
                       available ? 'cursor-pointer hover:bg-slate-50' : 'cursor-not-allowed opacity-60'
                     } ${isActive ? 'bg-blue-50/70 border border-blue-200' : ''}`}

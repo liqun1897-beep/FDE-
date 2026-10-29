@@ -23,25 +23,33 @@ export const DEFAULT_CONFIG = {
 };
 
 export function getConfig() {
-  if (!fs.existsSync(CONFIG_FILE)) {
-    saveConfig(DEFAULT_CONFIG);
-    return DEFAULT_CONFIG;
+  let cfg = { ...DEFAULT_CONFIG };
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
+      const stored = JSON.parse(raw);
+      cfg = {
+        ...DEFAULT_CONFIG,
+        ...stored,
+        apiKey: stored.apiKey || process.env.OPENAI_API_KEY || ''
+      };
+    } catch (e) {
+      cfg = { ...DEFAULT_CONFIG };
+    }
   }
-  try {
-    const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
-    const stored = JSON.parse(raw);
-    return {
-      ...DEFAULT_CONFIG,
-      ...stored,
-      apiKey: stored.apiKey || process.env.OPENAI_API_KEY || ''
-    };
-  } catch (e) {
-    return DEFAULT_CONFIG;
+  // Auto-clean: remove whitespace and accidental trailing URLs/comments
+  if (cfg.apiKey) {
+    cfg.apiKey = cfg.apiKey.trim().split(/\s+/)[0];
   }
+  return cfg;
 }
 
 export function saveConfig(cfg) {
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf-8');
+  const clean = { ...cfg };
+  if (clean.apiKey) {
+    clean.apiKey = clean.apiKey.trim().split(/\s+/)[0];
+  }
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(clean, null, 2), 'utf-8');
 }
 
 export function getAllCases() {
