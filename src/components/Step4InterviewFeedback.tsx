@@ -20,7 +20,8 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  X
+  X,
+  Printer
 } from 'lucide-react';
 
 interface Step4InterviewFeedbackProps {
@@ -30,6 +31,7 @@ interface Step4InterviewFeedbackProps {
   isStreaming: boolean;
   onSubmitFeedback: (feedback: Partial<InterviewFeedback>) => void;
   onUpdatePainPoints: (list: any[]) => void;
+  onOpenExportPdf?: () => void;
 }
 
 export const Step4InterviewFeedback: React.FC<Step4InterviewFeedbackProps> = ({
@@ -38,7 +40,8 @@ export const Step4InterviewFeedback: React.FC<Step4InterviewFeedbackProps> = ({
   streamingContent,
   isStreaming,
   onSubmitFeedback,
-  onUpdatePainPoints
+  onUpdatePainPoints,
+  onOpenExportPdf
 }) => {
   const [showReasoning, setShowReasoning] = useState(false);
   const [showPocModal, setShowPocModal] = useState(false);
@@ -199,6 +202,16 @@ export const Step4InterviewFeedback: React.FC<Step4InterviewFeedbackProps> = ({
             <ShieldCheck className="w-4 h-4 text-emerald-700" />
             <span>生成 1-2周低风险 PoC 验证备忘录</span>
           </button>
+          {onOpenExportPdf && (
+            <button
+              onClick={onOpenExportPdf}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg shadow-2xs transition-all border border-rose-200"
+              title="导出 A4 矢量 PDF 诊断方案"
+            >
+              <Printer className="w-4 h-4 text-rose-600" />
+              <span>导出诊断报告 (PDF)</span>
+            </button>
+          )}
           <button
             onClick={handleDownloadFullDossier}
             className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm transition-all"

@@ -15,6 +15,7 @@ import { Step1Input } from './components/Step1Input';
 import { Step2Research } from './components/Step2Research';
 import { Step3CombatCard } from './components/Step3CombatCard';
 import { Step4InterviewFeedback } from './components/Step4InterviewFeedback';
+import { ReportPdfModal } from './components/ReportPdfModal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface ErrorBoundaryProps {
@@ -84,6 +85,7 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isExportPdfOpen, setIsExportPdfOpen] = useState(false);
 
   // Streaming state
   const [isStreaming, setIsStreaming] = useState(false);
@@ -356,6 +358,7 @@ export default function App() {
         onNewCase={handleNewCase}
         onSelectPreset={handleSelectPreset}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenExportPdf={() => setIsExportPdfOpen(true)}
         currentTitle={currentCase?.companyName ? `${currentCase.companyName} (${currentCase.industry})` : undefined}
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -402,6 +405,7 @@ export default function App() {
                   isStreaming={isStreaming}
                   onRegenerate={handleStep1Submit}
                   onProceedToAgent2={handleStep2Proceed}
+                  onOpenExportPdf={() => setIsExportPdfOpen(true)}
                   onUpdateChecks={(checks) => {
                     updateCurrentCase({ agent1ReviewChecks: checks });
                     persistCurrentCase({ agent1ReviewChecks: checks });
@@ -417,6 +421,7 @@ export default function App() {
                   isStreaming={isStreaming}
                   onGenerate={handleStep3Generate}
                   onProceedToStep4={() => setCurrentStep(4)}
+                  onOpenExportPdf={() => setIsExportPdfOpen(true)}
                   onUpdateChecks={(checks) => {
                     updateCurrentCase({ agent2ReviewChecks: checks });
                     persistCurrentCase({ agent2ReviewChecks: checks });
@@ -431,6 +436,7 @@ export default function App() {
                   streamingContent={streamingContent}
                   isStreaming={isStreaming}
                   onSubmitFeedback={handleStep4SubmitFeedback}
+                  onOpenExportPdf={() => setIsExportPdfOpen(true)}
                   onUpdatePainPoints={(list) => {
                     updateCurrentCase({ painPointsList: list });
                     persistCurrentCase({ painPointsList: list });
@@ -446,6 +452,13 @@ export default function App() {
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+      />
+
+      {/* Full Dossier A4 PDF Export & Print Modal */}
+      <ReportPdfModal
+        isOpen={isExportPdfOpen}
+        onClose={() => setIsExportPdfOpen(false)}
+        currentCase={currentCase}
       />
 
     </div>

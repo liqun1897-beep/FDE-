@@ -14,7 +14,8 @@ import {
   Target,
   LayoutGrid,
   FileText,
-  Lightbulb
+  Lightbulb,
+  Printer
 } from 'lucide-react';
 
 interface Step3CombatCardProps {
@@ -25,6 +26,7 @@ interface Step3CombatCardProps {
   onGenerate: (context: { contactRole: string; meetingGoal: string; backgroundNotes: string }) => void;
   onProceedToStep4: () => void;
   onUpdateChecks: (checks: Record<string, boolean>) => void;
+  onOpenExportPdf?: () => void;
 }
 
 const CHECKLIST_ITEMS_AGENT2 = [
@@ -53,7 +55,8 @@ export const Step3CombatCard: React.FC<Step3CombatCardProps> = ({
   isStreaming,
   onGenerate,
   onProceedToStep4,
-  onUpdateChecks
+  onUpdateChecks,
+  onOpenExportPdf
 }) => {
   const [showReasoning, setShowReasoning] = useState(false);
   const [viewMode, setViewMode] = useState<'visual' | 'markdown'>('visual');
@@ -140,6 +143,18 @@ export const Step3CombatCard: React.FC<Step3CombatCardProps> = ({
             <Download className="w-3.5 h-3.5" />
             <span>导出 .md</span>
           </button>
+
+          {onOpenExportPdf && (
+            <button
+              onClick={onOpenExportPdf}
+              disabled={!displayContent}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors border border-rose-200 shadow-2xs disabled:opacity-50"
+              title="导出 A4 矢量 PDF 诊断方案"
+            >
+              <Printer className="w-3.5 h-3.5 text-rose-600" />
+              <span>导出 PDF</span>
+            </button>
+          )}
 
           <button
             onClick={() => onGenerate({ contactRole, meetingGoal, backgroundNotes })}

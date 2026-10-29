@@ -6,7 +6,9 @@ import {
   FolderOpen, 
   Sparkles, 
   Activity, 
-  SlidersHorizontal 
+  SlidersHorizontal,
+  FileText,
+  Printer
 } from 'lucide-react';
 import { CASE_PRESETS } from '../lib/presets';
 
@@ -14,6 +16,7 @@ interface HeaderProps {
   onNewCase: () => void;
   onSelectPreset: (preset: any) => void;
   onOpenSettings: () => void;
+  onOpenExportPdf: () => void;
   currentTitle?: string;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -23,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNewCase,
   onSelectPreset,
   onOpenSettings,
+  onOpenExportPdf,
   currentTitle,
   isSidebarOpen,
   onToggleSidebar
@@ -91,6 +95,17 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Export PDF Button */}
+          <button
+            onClick={onOpenExportPdf}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors border border-rose-200 shadow-2xs"
+            title="导出企业级 A4 矢量 PDF 诊断方案"
+          >
+            <FileText className="w-3.5 h-3.5 text-rose-600" />
+            <span className="hidden md:inline">导出诊断报告 (PDF)</span>
+            <span className="md:hidden">导出PDF</span>
+          </button>
 
           {/* New Case Button */}
           <button
