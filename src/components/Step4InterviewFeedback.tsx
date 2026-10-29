@@ -79,7 +79,7 @@ export const Step4InterviewFeedback: React.FC<Step4InterviewFeedbackProps> = ({
     // Standard high-reliability FDE PoC memo template
     return `【FDE 1-2周低风险概念验证 (PoC) 备忘录】
 客户单位：${currentCase.companyName || '目标客户'}
-对接团队：FDE 售前工程交付团队
+方案编制：武汉仓藤科技
 建议日期：${new Date().toLocaleDateString()}
 
 一、验证背景与聚焦痛点

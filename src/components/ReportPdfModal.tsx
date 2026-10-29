@@ -135,7 +135,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
   // Generate clean client proposal markdown
   const generateClientProposalMarkdown = () => {
     let md = `# 【${companyName}】数字化转型与 AI 智能协同诊断建议书\n\n`;
-    md += `> 所属赛道：${industry} | 编制日期：${reportDate} | 方案编制：FDE 现场工程交付与数字化咨询团队\n\n`;
+    md += `> 所属赛道：${industry} | 编制日期：${reportDate} | 方案编制：武汉仓藤科技\n\n`;
     md += `## 一、项目背景与数字化演进趋势\n\n`;
     md += `- **行业新周期特征：** ${industryTrend}\n`;
     md += `- **目标企业业务定位：** ${businessPosition}\n`;
@@ -196,7 +196,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
     md += `## 七、建议的下一步行动计划\n\n`;
     md += `1. 共同选定 1 个痛点最明确、见效最快的切口场景作为首期 PoC 验证主题。\n`;
     md += `2. 客户侧提供 10~20 份历史脱敏单据/表格样本。\n`;
-    md += `3. 工程团队在 7 个工作日内完成原型构建与实测 ROI 测算汇报。\n`;
+    md += `3. 武汉仓藤科技团队在 7 个工作日内完成原型构建与实测 ROI 测算汇报。\n`;
 
     return md;
   };
@@ -383,7 +383,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                       </div>
                       <div>
                         <span className="text-slate-400 block font-semibold">方案编制：</span>
-                        <span className="font-bold text-slate-900">数字化工程交付团队</span>
+                        <span className="font-bold text-slate-900">武汉仓藤科技</span>
                       </div>
                       <div>
                         <span className="text-slate-400 block font-semibold">报告日期：</span>
@@ -672,7 +672,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                       </div>
                       <div>
                         <span className="font-bold text-white block mb-0.5">3. 7天原型实测：</span>
-                        <span>交付团队在 7 个工作日内完成原型构建，并出具准确率对比与实测 ROI 测算报告。</span>
+                        <span>武汉仓藤科技交付团队在 7 个工作日内完成原型构建，并出具准确率对比与实测 ROI 测算报告。</span>
                       </div>
                     </div>
                   </div>
@@ -801,7 +801,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                 </div>
                 <div>
                   <span className="text-slate-500 block font-semibold">方案编制：</span>
-                  <span className="font-bold text-slate-900">数字化工程交付团队</span>
+                  <span className="font-bold text-slate-900">武汉仓藤科技</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block font-semibold">编制日期：</span>
