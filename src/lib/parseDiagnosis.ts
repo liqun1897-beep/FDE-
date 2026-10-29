@@ -235,12 +235,18 @@ export function parseFullDocument(raw: string): ParsedDiagnosisReport {
     }
   }
 
-  // Extract detailed in-depth section paragraphs for roles (e.g. 6.2, 6.3, 6.4)
-  const roleAnalysisRegex = /###\s*(?:6\.[2-4]\s*)?([^#\n]+(?:决策层|协同|管理|执行层|总监|经理|一线)[^#\n]*)\n([\s\S]*?)(?=(?:###|##|$))/g;
+  // Extract detailed in-depth section paragraphs for roles specifically from Section 6 (e.g. 6.2, 6.3, 6.4)
+  const roleAnalysisRegex = /###\s*(?:6\.[2-9]\s+|6\.[1-9][0-9]\s+)?([^#\n]*(?:决策层|协同|管理|执行层|总监|经理|一线)[^#\n]*剖析[^#\n]*)\n([\s\S]*?)(?=(?:###|##|$))/g;
   let match;
   while ((match = roleAnalysisRegex.exec(raw)) !== null) {
     const title = match[1].trim();
-    const content = match[2].trim();
+    // Exclude process flow diagrams or matrix tables
+    if (/流程图|矩阵表|^4\./.test(title)) continue;
+    
+    // Clean raw markdown: remove any embedded table pipes so tables don't leak into text cards
+    const cleanLines = match[2].trim().split('\n').filter(line => !line.trim().startsWith('|'));
+    const content = cleanLines.join('\n').trim();
+
     if (content.length > 30) {
       result.roleTierAnalyses[title] = content;
     }

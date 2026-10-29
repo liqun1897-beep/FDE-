@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { CaseSession } from '../types';
 import { parseFullDocument } from '../lib/parseDiagnosis';
 import { StatusBadge } from './StatusBadge';
@@ -529,11 +531,15 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                     {/* Detailed field notes if extracted */}
                     {Object.keys(parsedResearch.roleTierAnalyses).length > 0 && (
                       <div className="space-y-3 pt-2">
-                        <span className="text-xs font-bold text-slate-800 block">现场调研记录与卡点深入分析：</span>
+                        <span className="text-xs font-bold text-slate-800 block">各层级现场调研深度实录：</span>
                         {Object.entries(parsedResearch.roleTierAnalyses).map(([t, c], idx) => (
-                          <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed whitespace-pre-line">
-                            <span className="font-bold text-slate-900 block mb-1">【{t}】</span>
-                            {c}
+                          <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
+                            <span className="font-bold text-slate-900 block mb-2 text-xs">【{t}】</span>
+                            <div className="prose prose-slate max-w-none prose-p:text-xs prose-p:my-1 prose-ul:text-xs prose-ul:my-1 prose-ul:pl-4 prose-li:my-0.5 prose-strong:text-slate-900">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {c}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         ))}
                       </div>

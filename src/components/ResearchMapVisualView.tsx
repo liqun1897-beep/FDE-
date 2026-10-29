@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { StatusBadge } from './StatusBadge';
 import { parseFullDocument, ProcessStage, RoleTaskItem } from '../lib/parseDiagnosis';
 import { 
@@ -645,8 +647,12 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
                     <span className="w-2 h-2 rounded-full bg-blue-600" />
                     <span>{sectionTitle}</span>
                   </h5>
-                  <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
-                    {textContent}
+                  <div className="text-xs text-slate-700 leading-relaxed bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
+                    <div className="prose prose-slate max-w-none prose-p:text-xs prose-p:my-1 prose-ul:text-xs prose-ul:my-1 prose-ul:pl-4 prose-li:my-0.5 prose-strong:text-slate-900">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {textContent}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -733,8 +739,12 @@ export const ResearchMapVisualView: React.FC<ResearchMapVisualViewProps> = ({ ra
                     <span className="w-2 h-2 rounded-full bg-blue-600" />
                     <span>{sectionTitle}</span>
                   </h5>
-                  <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
-                    {textContent}
+                  <div className="text-xs text-slate-700 leading-relaxed bg-white p-3.5 rounded-lg border border-slate-200/80 font-sans shadow-2xs">
+                    <div className="prose prose-slate max-w-none prose-p:text-xs prose-p:my-1 prose-ul:text-xs prose-ul:my-1 prose-ul:pl-4 prose-li:my-0.5 prose-strong:text-slate-900">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {textContent}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               ))}
