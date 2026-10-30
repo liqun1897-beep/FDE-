@@ -18,6 +18,7 @@ import {
   DEFAULT_DYNAMIC_DIAGNOSIS_PROMPT 
 } from './defaultPrompts.js';
 import { getRecruitmentData } from './recruitmentService.js';
+import { generateConsultingHtml, compileHtmlToPdf } from './consultingReportService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -227,6 +228,48 @@ app.put('/api/cases/:id', (req, res) => {
 app.delete('/api/cases/:id', (req, res) => {
   deleteCase(req.params.id);
   res.json({ success: true });
+});
+
+// ----------------- CONSULTING DELIVERABLE EXPORT APIS -----------------
+
+// 1. Direct PDF Download (Chrome Headless compiled vector A4 PDF)
+app.get('/api/export/proposal-pdf/:id', async (req, res) => {
+  try {
+    const item = getCaseById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Case not found' });
+
+    const html = generateConsultingHtml(item);
+    const pdfPath = await compileHtmlToPdf(html);
+
+    const safeName = (item.companyName || '企业').replace(/[\/\\:*?"<>|]/g, '_');
+    const filename = encodeURIComponent(`【武汉仓藤科技】${safeName}_交付协同与数据提效诊断建议书.pdf`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"; filename*=UTF-8''${filename}`);
+    
+    const fileStream = fs.createReadStream(pdfPath);
+    fileStream.pipe(res);
+    fileStream.on('close', () => {
+      try { if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath); } catch (e) {}
+    });
+  } catch (err) {
+    console.error('PDF export error:', err);
+    res.status(500).json({ error: 'PDF 编译失败: ' + err.message });
+  }
+});
+
+// 2. Standalone Interactive HTML Proposal View (New Tab)
+app.get('/api/export/proposal-html/:id', (req, res) => {
+  try {
+    const item = getCaseById(req.params.id);
+    if (!item) return res.status(404).send('未找到案例');
+
+    const html = generateConsultingHtml(item);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('HTML export error:', err);
+    res.status(500).send('HTML 渲染失败: ' + err.message);
+  }
 });
 
 // ----------------- LLM STREAMING ENDPOINTS -----------------

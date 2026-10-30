@@ -314,13 +314,33 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                   <span>导出 .md</span>
                 </button>
 
+                <a
+                  href={`/api/export/proposal-html/${currentCase.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200"
+                  title="在新标签页中打开独立全屏 HTML 提案台"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span>全屏提案台</span>
+                </a>
+
+                <a
+                  href={`/api/export/proposal-pdf/${currentCase.id}`}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-lg shadow-sm transition-all"
+                  title="基于 Chrome 原生 Headless 引擎直接编译并下载 13 页麦肯锡级高清矢量 PDF"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>下载 13页矢量PDF</span>
+                </a>
+
                 <button
                   onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-all"
-                  title="直接调起浏览器打印 / 另存为高清矢量 PDF"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
+                  title="调起浏览器系统打印窗口"
                 >
-                  <Printer className="w-4 h-4" />
-                  <span>打印 / 另存为 PDF</span>
+                  <Printer className="w-3.5 h-3.5 text-slate-600" />
+                  <span>浏览器打印</span>
                 </button>
 
                 <button
